@@ -9,10 +9,9 @@ import com.sun.net.httpserver.HttpServer;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        int port = 9000;
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
-        System.out.println("Server started successfully at port " + port);
-        server.createContext("/test", new RootHandler());
+        Form form = new Form();
+        HttpServer server = HttpServer.create(new InetSocketAddress(9000), 0);
+        server.createContext("/", new RootController(form));
         server.setExecutor(null); // creates a default executor
         server.start();
     }
