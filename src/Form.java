@@ -6,56 +6,57 @@ import java.net.URLDecoder;
 import java.util.HashMap;  
 import java.util.Map;  
 
-public class Form implements HttpHandler {  
-    @Override  
-    public void handle(HttpExchange httpExchange) throws IOException {  
 
-        String response = "";  
-        String method = httpExchange.getRequestMethod();  
+public class Form{  
 
+    String response = ""; 
 
-        // Send a form if it wasn't submitted yet.  
-        if(method.equals("GET")){  
-            response = "<html><body>" +  
-                    "<form method=\"POST\">\n" +  
-                    "  First name:<br>\n" +  
-                    "  <input type=\"text\" name=\"firstname\" value=\"Mickey\">\n" +  
-                    "  <br>\n" +  
-                    "  Last name:<br>\n" +  
-                    "  <input type=\"text\" name=\"lastname\" value=\"Mouse\">\n" +  
-                    "  <br><br>\n" +  
-                    "  <input type=\"submit\" value=\"Submit\">\n" +  
-                    "</form> " +  
-                    "</body></html>";  
-        }  
-
-        // If the form was submitted, retrieve it's content.  
-        if(method.equals("POST")){  
-            InputStreamReader isr = new InputStreamReader(httpExchange.getRequestBody(), "utf-8");  
-            BufferedReader br = new BufferedReader(isr);  
-            String formData = br.readLine();  
-
-            System.out.println(formData);  
-            Map inputs = parseFormData(formData);  
-
-            response = "<html><body>" +  
-                    "<h1>Hello " +  
-                    inputs.get("firstname") + " " + inputs.get("lastname") +  
-                    "!</h1>" +  
-                    "</body><html>";  
-        }  
+    @WebRoute(method = "GET", path = "/first")
+    void onTest(HttpExchange httpExchange) throws IOException {
+        response = "<input type=\"submit\" value=\"Submit\">\n" + " First Response ";
 
         httpExchange.sendResponseHeaders(200, response.length());  
         OutputStream os = httpExchange.getResponseBody();  
         os.write(response.getBytes());  
-        os.close();  
-    }  
+        os.close();
+    }
 
-    /**  
-     * Form data is sent as a urlencoded string. Thus we have to parse this string to get data that we want.  
-     * See: https://en.wikipedia.org/wiki/POST_(HTTP)  
-     */  
-    
+    @WebRoute(method = "GET", path = "/second")
+    void onAnotherTest(HttpExchange httpExchange) throws IOException {
+        response = "<input type=\"submit\" value=\"Submit\">\n" + " Second Response ";
+
+        httpExchange.sendResponseHeaders(200, response.length());  
+        OutputStream os = httpExchange.getResponseBody();  
+        os.write(response.getBytes());  
+        os.close();
+    }
+
+    @WebRoute(method = "POST", path = "/first")
+    void onPostTest(HttpExchange httpExchange) throws IOException {
+        redirectToPath(httpExchange, "/second");
+
+        httpExchange.sendResponseHeaders(200, response.length());  
+        OutputStream os = httpExchange.getResponseBody();  
+        os.write(response.getBytes());  
+        os.close();
+    }
+
+    @WebRoute(method = "POST", path = "/second")
+    void onPostAnotherTest(HttpExchange httpExchange) throws IOException {
+        redirectToPath(httpExchange, "/first");
+
+        httpExchange.sendResponseHeaders(200, response.length());  
+        OutputStream os = httpExchange.getResponseBody();  
+        os.write(response.getBytes());  
+        os.close();
+    }
+
+    private void redirectToPath(HttpExchange httpExchange, String path) throws IOException {
+        httpExchange.getResponseHeaders().add("Location", path);
+        httpExchange.sendResponseHeaders(301, -1);
+    }
+
+
     private static Map<String, String> parseFormData(String formData) throws UnsupportedEncodingException {  
         Map<String, String> map = new HashMap<>();  
         String[] pairs = formData.split("&");  
@@ -67,4 +68,4 @@ public class Form implements HttpHandler {
         }  
         return map;  
     }  
-}  
+}
