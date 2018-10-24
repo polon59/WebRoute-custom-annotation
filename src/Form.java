@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.URLDecoder;  
 import java.util.HashMap;  
 import java.util.Map;  
+import java.io.OutputStream;
 
 
 public class Form{  
@@ -13,7 +14,13 @@ public class Form{
 
     @WebRoute(method = HttpMethod.GET, path = "/first")
     void onTest(HttpExchange httpExchange) throws IOException {
-        response = "<input type=\"submit\" value=\"Submit\">\n" + " First Response ";
+
+        response = "<html><body>" +
+        "<br><form method=\"POST\">\n" +
+        "<h1>First</h1>"+
+        "<input type=\"submit\" value=\"SUBMIT\">\n" +
+        "</form> " +
+        "</body></html>";
 
         System.out.println("FORM: Entered +++GET+++ FIRST");
 
@@ -25,13 +32,19 @@ public class Form{
 
     @WebRoute(method = HttpMethod.GET, path = "/second")
     void onAnotherTest(HttpExchange httpExchange) throws IOException {
-        response = "<input type=\"submit\" value=\"Submit\">\n" + " Second Response ";
+
+        response = "<html><body>" +
+        "<br><form method=\"POST\">\n" +
+        "<h1>Second</h1>"+
+        "<input type=\"submit\" value=\"SUBMIT\">\n" +
+        "</form> " +
+        "</body></html>";
 
         System.out.println("FORM: Entered +++GET+++ SECOND");
 
-        httpExchange.sendResponseHeaders(200, response.length());  
-        OutputStream os = httpExchange.getResponseBody();  
-        os.write(response.getBytes());  
+        httpExchange.sendResponseHeaders(200, response.length());
+        OutputStream os = httpExchange.getResponseBody();
+        os.write(response.getBytes());
         os.close();
     }
 
@@ -40,11 +53,6 @@ public class Form{
         redirectToPath(httpExchange, "/second");
 
         System.out.println("FORM: Entered +++POST+++ FIRST");
-
-        // httpExchange.sendResponseHeaders(200, response.length());  
-        // OutputStream os = httpExchange.getResponseBody();  
-        // os.write(response.getBytes());  
-        // os.close();
     }
 
     @WebRoute(method = HttpMethod.POST, path = "/second")
@@ -52,43 +60,10 @@ public class Form{
         redirectToPath(httpExchange, "/first");
 
         System.out.println("FORM: Entered +++POST+++ SECOND");
-
-        // httpExchange.sendResponseHeaders(200, response.length());  
-        // OutputStream os = httpExchange.getResponseBody();  
-        // os.write(response.getBytes());  
-        // os.close();
     }
 
     private void redirectToPath(HttpExchange httpExchange, String path) throws IOException {
         httpExchange.getResponseHeaders().add("Location", path);
         httpExchange.sendResponseHeaders(301, -1);
     }
-
-    // if(method.equals("POST")){  
-    //     InputStreamReader isr = new InputStreamReader(httpExchange.getRequestBody(), "utf-8");  
-    //     BufferedReader br = new BufferedReader(isr);  
-    //     String formData = br.readLine();  
-
-    //     System.out.println(formData);  
-    //     Map inputs = parseFormData(formData);  
-
-    //     response = "<html><body>" +  
-    //             "<h1>Hello " +  
-    //             inputs.get("firstname") + " " + inputs.get("lastname") +  
-    //             "!</h1>" +  
-    //             "</body><html>";  
-    // }  
-
-
-    private static Map<String, String> parseFormData(String formData) throws UnsupportedEncodingException {  
-        Map<String, String> map = new HashMap<>();  
-        String[] pairs = formData.split("&");  
-        for(String pair : pairs){  
-            String[] keyValue = pair.split("=");  
-            // We have to decode the value because it's urlencoded. see: https://en.wikipedia.org/wiki/POST_(HTTP)#Use_for_submitting_web_forms  
-            String value = new URLDecoder().decode(keyValue[1], "UTF-8");  
-            map.put(keyValue[0], value);  
-        }  
-        return map;  
-    }  
 }
