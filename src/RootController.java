@@ -21,14 +21,18 @@ public class RootController implements HttpHandler {
             Class<Form> aClass = Form.class;
     
             for (Method method : aClass.getDeclaredMethods()) {
-    
+
+                System.out.println("ROOT CONTROLLER: For method aclass.getDeclaredMethods");
+
                 if (method.isAnnotationPresent(WebRoute.class)) {
-    
+                    
+                    System.out.println("ROOT CONTROLLER : annotation present");
+
                     Annotation annotation = method.getAnnotation(WebRoute.class);
                     WebRoute webRoute = (WebRoute) annotation;
     
                     if (webRoute.method().equals(httpMethod) && webRoute.path().equals(firstSegment)) {
-    
+                        System.out.println("Root CONTROL: webROUTE METHOD.equals(httpMEthod)");
                         try {
                             method.invoke(form, httpExchange);
                         } catch (IllegalAccessException | InvocationTargetException e) {
